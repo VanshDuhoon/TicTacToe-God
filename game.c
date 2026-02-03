@@ -2,50 +2,46 @@
 #include <stdio.h>
 #include <math.h>
 
-// --- GLOBALS ---
+
 Vector2 winStart = {0, 0};
 Vector2 winEnd = {0, 0};
 
-// --- HELPER: CENTERED TEXT ---
-// Text ko screen ke beech mein likhne ke liye auto-calculation
 void DrawTextCentered(const char *text, int y, int fontSize, Color color) {
     int textWidth = MeasureText(text, fontSize);
     DrawText(text, (600 - textWidth) / 2, y, fontSize, color);
 }
-
-// --- HELPER: BOLD TEXT ---
-// Raylib default font patla hai, isliye hum usse 2-3 baar draw karke mota dikhayenge
+ mota dikhayenge
 void DrawTextBold(const char *text, int x, int y, int fontSize, Color color) {
-    DrawText(text, x+2, y+2, fontSize, Fade(BLACK, 0.3f)); // Shadow
+    DrawText(text, x+2, y+2, fontSize, Fade(BLACK, 0.3f)); 
     DrawText(text, x+1, y, fontSize, color);
     DrawText(text, x-1, y, fontSize, color);
     DrawText(text, x, y+1, fontSize, color);
     DrawText(text, x, y-1, fontSize, color);
-    DrawText(text, x, y, fontSize, color); // Main Top Layer
+    DrawText(text, x, y, fontSize, color); 
 }
 
-// --- HELPER: CENTERED BOLD TEXT ---
+
 void DrawTextCenteredBold(const char *text, int y, int fontSize, Color color) {
     int textWidth = MeasureText(text, fontSize);
     int x = (600 - textWidth) / 2;
     DrawTextBold(text, x, y, fontSize, color);
 }
 
-// --- 1. WIN CHECKER ---
+
 char checkWin(char board[3][3]) {
-    // Rows
+    
     for(int i=0; i<3; i++) {
         if(board[i][0] == board[i][1] && board[i][0] == board[i][2] && board[i][0] != ' ') {
             float y = i * 200 + 100; winStart = (Vector2){ 20, y }; winEnd = (Vector2){ 580, y }; return board[i][0];
         }
     }
-    // Cols
+    
     for(int i=0; i<3; i++) {
         if(board[0][i] == board[1][i] && board[0][i] == board[2][i] && board[0][i] != ' ') {
             float x = i * 200 + 100; winStart = (Vector2){ x, 20 }; winEnd = (Vector2){ x, 580 }; return board[0][i];
         }
     }
-    // Diagonals
+    
     if(board[0][0] == board[1][1] && board[0][0] == board[2][2] && board[0][0] != ' ') {
         winStart = (Vector2){ 20, 20 }; winEnd = (Vector2){ 580, 580 }; return board[0][0];
     }
@@ -55,8 +51,6 @@ char checkWin(char board[3][3]) {
     return ' ';
 }
 
-// --- 2. SMART DRAW (PvP ONLY) ---
-// YE RAHA FEATURE! MISS NAHI HUA HAI.
 int isDrawPossible(char board[3][3]) {
     int lines[8][3][2] = {
         {{0,0},{0,1},{0,2}}, {{1,0},{1,1},{1,2}}, {{2,0},{2,1},{2,2}}, 
@@ -70,12 +64,12 @@ int isDrawPossible(char board[3][3]) {
             if(cell == 'X') xFound = 1;
             if(cell == 'O') oFound = 1;
         }
-        if(xFound == 0 || oFound == 0) return 0; // Win possible hai
+        if(xFound == 0 || oFound == 0) return 0; 
     }
-    return 1; // Smart Draw
+    return 1; 
 }
 
-// --- 3. AI BRAIN (MINIMAX) ---
+
 int isBoardFull(char board[3][3]) {
     for(int i=0; i<3; i++) for(int j=0; j<3; j++) if(board[i][j] == ' ') return 0;
     return 1;
@@ -108,18 +102,18 @@ void performAIMove(char board[3][3]) {
     if(bestRow != -1) board[bestRow][bestCol] = 'O';
 }
 
-// --- MAIN FUNCTION ---
+
 int main() {
     InitWindow(600, 600, "Tic-Tac-Toe: Final Systematic Edition");
     SetTargetFPS(60);
 
-    int gameMode = 0; // 0=Menu, 1=PvP, 2=AI
+    int gameMode = 0; 
     char board[3][3] = { {' ',' ',' '}, {' ',' ',' '}, {' ',' ',' '} };
     char currentPlayer = 'X'; char winner = ' '; int moves = 0; int gameOver = 0;
     char statusMsg[50] = "";
-    int framesCounter = 0; // Safety Timer
+    int framesCounter = 0; 
 
-    // Colors
+    
     Color myRed = (Color){ 230, 41, 55, 255 };
     Color myBlue = (Color){ 0, 121, 241, 255 };
     Color myGold = (Color){ 255, 203, 0, 240 };
@@ -130,12 +124,12 @@ int main() {
     while (!WindowShouldClose()) {
         Vector2 mouse = GetMousePosition();
 
-        // --- MENU SCREEN ---
+        
         if (gameMode == 0) {
             BeginDrawing();
             ClearBackground(bgWall);
             
-            // Bold & Centered Title
+            
             DrawTextCenteredBold("TIC-TAC-TOE", 100, 60, BLACK);
             DrawTextCentered("Choose Your Mode", 170, 25, DARKGRAY);
 
@@ -146,7 +140,7 @@ int main() {
 
             DrawRectangleRec(btnPvP, hPvP ? btnHover : btnNormal);
             DrawRectangleLinesEx(btnPvP, 3, hPvP ? DARKGRAY : GRAY);
-            // Centered Text inside Button
+            
             int pvpWidth = MeasureText("Player vs Player", 30);
             DrawTextBold("Player vs Player", 150 + (300-pvpWidth)/2, 265, 30, BLACK);
             
@@ -160,7 +154,7 @@ int main() {
             EndDrawing();
         }
         
-        // --- GAMEPLAY SCREEN ---
+        
         else {
             if (!gameOver) {
                 int canClick = (gameMode == 1) || (gameMode == 2 && currentPlayer == 'X');
@@ -169,12 +163,12 @@ int main() {
                     if (row>=0 && row<3 && col>=0 && col<3 && board[row][col] == ' ') {
                         board[row][col] = currentPlayer; moves++;
                         
-                        // Check Win
+                        
                         winner = checkWin(board);
                         if(winner != ' ') { gameOver = 1; sprintf(statusMsg, "%c WINS!", winner); }
                         else if(isBoardFull(board)) { gameOver = 1; sprintf(statusMsg, "GAME DRAW!"); }
                         
-                        // Check Smart Draw (PvP Only)
+                    
                         else if (gameMode == 1 && moves > 4 && isDrawPossible(board)) {
                             gameOver = 1;
                             sprintf(statusMsg, "SMART DRAW!");
@@ -187,7 +181,7 @@ int main() {
                     }
                 }
                 
-                // AI Turn
+                
                 if (gameMode == 2 && currentPlayer == 'O' && !gameOver) {
                     performAIMove(board); moves++;
                     winner = checkWin(board);
@@ -197,10 +191,10 @@ int main() {
                 }
             }
 
-            // --- RESTART LOGIC WITH DELAY ---
+            
             if (gameOver) {
                 framesCounter++;
-                if (framesCounter > 60) { // 1 Second wait
+                if (framesCounter > 60) { 
                     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                         for(int i=0; i<3; i++) for(int j=0; j<3; j++) board[i][j] = ' ';
                         currentPlayer = 'X'; winner = ' '; moves = 0; gameOver = 0; framesCounter = 0;
@@ -212,11 +206,11 @@ int main() {
                 }
             }
 
-            // --- DRAWING ---
+            
             BeginDrawing();
             ClearBackground(bgWall);
 
-            // Thick Grid
+            
             DrawLineEx((Vector2){200, 20}, (Vector2){200, 580}, 6.0f, LIGHTGRAY);
             DrawLineEx((Vector2){400, 20}, (Vector2){400, 580}, 6.0f, LIGHTGRAY);
             DrawLineEx((Vector2){20, 200}, (Vector2){580, 200}, 6.0f, LIGHTGRAY);
@@ -236,18 +230,18 @@ int main() {
 
             if (gameOver && winner != ' ') DrawLineEx(winStart, winEnd, 22.0f, myGold);
 
-            // --- NOTIFICATIONS (BOLD & SYSTEMATIC) ---
+            
             if (gameOver) {
                 DrawRectangle(0, 0, 600, 600, Fade(WHITE, 0.92f));
                 
-                // Result Text
+                
                 Color msgColor = DARKGRAY;
                 if(winner == 'X') msgColor = myRed;
                 else if(winner == 'O') msgColor = myBlue;
                 
                 DrawTextCenteredBold(statusMsg, 230, 60, msgColor);
 
-                // Instructions (Aligned Perfectly)
+                
                 if (framesCounter > 60) {
                     DrawTextCenteredBold("Click to Play Again", 330, 30, DARKGRAY);
                     DrawTextCentered("Press 'M' for Menu", 380, 25, GRAY);
@@ -261,4 +255,5 @@ int main() {
     }
     CloseWindow();
     return 0;
+
 }
